@@ -39,7 +39,7 @@ call venv\Scripts\activate.bat
 
 :: Inicia o backend FastAPI em background
 echo [BACKEND] Iniciando servidor FastAPI na porta 8000...
-start /B python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+start python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 :: Aguarda alguns segundos para o backend inicializar
 echo [INFO] Aguardando inicializacao do backend...
