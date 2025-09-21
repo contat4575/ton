@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+aiohttp
+requests
+trafilatura
+beautifulsoup4
+selenium
+webdriver-manager
+lxml[html_clean]
