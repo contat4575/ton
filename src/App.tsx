@@ -244,13 +244,13 @@ function App() {
     try {
       // Primeiro, testa se o backend está respondendo
       console.log('Testando conexão com o backend...');
-      const healthResponse = await fetch('http://localhost:8000/health');
+      const healthResponse = await fetch('/api/health');
       if (!healthResponse.ok) {
         throw new Error('Backend não está respondendo');
       }
       console.log('Backend está ativo, iniciando missão...');
 
-      const response = await fetch('http://localhost:8000/start-research', {
+      const response = await fetch('/api/start-research', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -284,7 +284,7 @@ function App() {
     const pollStatus = async () => {
       try {
         console.log(`Verificando status da sessão: ${missionStatus.session_id}`);
-        const response = await fetch(`http://localhost:8000/research-status/${missionStatus.session_id}`);
+        const response = await fetch(`/api/research-status/${missionStatus.session_id}`);
         if (response.ok) {
           const status = await response.json();
           console.log('Status atualizado:', status);
@@ -292,7 +292,7 @@ function App() {
 
           if (status.status === 'concluído') {
             // Buscar resultados completos
-            const resultsResponse = await fetch(`http://localhost:8000/research-results/${missionStatus.session_id}`);
+            const resultsResponse = await fetch(`/api/research-results/${missionStatus.session_id}`);
             if (resultsResponse.ok) {
               const results = await resultsResponse.json();
               setMissionResults(results);
