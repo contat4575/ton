@@ -16,7 +16,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,16 +31,25 @@ async def start_research(request: UserRequest, background_tasks: BackgroundTasks
     Retorna imediatamente o session_id para acompanhamento.
     """
     try:
+        print(f"[API] Recebida requisição de pesquisa: {request.topic}")
         session_id = await controller.start_mission(request.dict())
+        print(f"[API] Missão iniciada com sucesso: {session_id}")
         return {"message": "Missão de pesquisa iniciada.", "session_id": session_id, "status": "processing"}
     except Exception as e:
+        print(f"[API] Erro ao iniciar missão: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao iniciar missão: {str(e)}")
+
+@app.get("/health")
+async def health_check():
+    """Endpoint para verificar se a API está funcionando."""
+    return {"status": "ok", "message": "ARQV30-AI API está funcionando"}
 
 @app.get("/research-status/{session_id}")
 async def get_research_status(session_id: str):
     """
     Verifica o status de uma missão de pesquisa.
     """
+    print(f"[API] Verificando status da sessão: {session_id}")
     session_dir = os.path.join("sessions", session_id)
     if not os.path.exists(session_dir):
         raise HTTPException(status_code=404, detail="Sessão não encontrada.")
@@ -66,6 +75,7 @@ async def get_research_status(session_id: str):
             }
         }
     except Exception as e:
+        print(f"[API] Erro ao ler estado da sessão: {e}")
         raise HTTPException(status_code=500, detail=f"Erro ao ler o estado da sessão: {e}")
 
 @app.get("/research-results/{session_id}")

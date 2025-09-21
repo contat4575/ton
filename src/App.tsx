@@ -242,6 +242,14 @@ function App() {
     setMissionResults(null);
 
     try {
+      // Primeiro, testa se o backend está respondendo
+      console.log('Testando conexão com o backend...');
+      const healthResponse = await fetch('http://localhost:8000/health');
+      if (!healthResponse.ok) {
+        throw new Error('Backend não está respondendo');
+      }
+      console.log('Backend está ativo, iniciando missão...');
+
       const response = await fetch('http://localhost:8000/start-research', {
         method: 'POST',
         headers: {
@@ -251,16 +259,20 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao iniciar a missão de pesquisa');
+        const errorText = await response.text();
+        console.error('Erro na resposta:', errorText);
+        throw new Error(`Falha ao iniciar a missão: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Missão iniciada:', data);
       setMissionStatus({
         session_id: data.session_id,
         status: 'iniciando',
         last_step: 'Inicializando...'
       });
     } catch (err) {
+      console.error('Erro completo:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       setIsLoading(false);
     }
@@ -271,9 +283,11 @@ function App() {
 
     const pollStatus = async () => {
       try {
+        console.log(`Verificando status da sessão: ${missionStatus.session_id}`);
         const response = await fetch(`http://localhost:8000/research-status/${missionStatus.session_id}`);
         if (response.ok) {
           const status = await response.json();
+          console.log('Status atualizado:', status);
           setMissionStatus(status);
 
           if (status.status === 'concluído') {
@@ -285,6 +299,8 @@ function App() {
             }
             setIsLoading(false);
           }
+        } else {
+          console.error('Erro ao verificar status:', response.status);
         }
       } catch (err) {
         console.error('Erro ao verificar status:', err);
